@@ -2,28 +2,65 @@ return {
   {
     "supermaven-inc/supermaven-nvim",
     config = function()
+      local supermaven = require("supermaven-nvim")
       local api = require("supermaven-nvim.api")
 
-      -- Stop Supermaven only if it's running at startup
+      -- Initialize plugin silently and ensure free mode
+      supermaven.setup({})
+      vim.schedule(function()
+        pcall(vim.cmd, "SupermavenUseFree") -- run without showing Pro prompt
+      end)
+
+      -- Stop if running initially
       if api.is_running() then
         api.stop()
-        vim.notify("Supermaven Disabled 💤", vim.log.levels.WARN, { title = "Supermaven" })
+        -- vim.notify("Supermaven Disabled 💤", vim.log.levels.WARN, { title = "Supermaven" })
       end
 
-      -- Keymap to toggle Supermaven
+      -- Keymap to toggle on/off with single call
       vim.keymap.set({ "n", "i" }, "<C-\\>", function()
+        api.toggle()
         if api.is_running() then
-          api.stop()
-          vim.notify("Supermaven Disabled 💤", vim.log.levels.WARN, { title = "Supermaven" })
-        else
-          api.start()
-          api.use_free_version() -- ensure free mode when enabling
+          vim.schedule(function()
+            pcall(vim.cmd, "SupermavenUseFree")
+          end)
           vim.notify("Supermaven Enabled ⚡ (Free Mode)", vim.log.levels.INFO, { title = "Supermaven" })
+        else
+          vim.notify("Supermaven Disabled 💤", vim.log.levels.WARN, { title = "Supermaven" })
         end
       end, { desc = "Toggle Supermaven" })
     end,
   },
 }
+
+
+
+-- return {
+--   {
+--     "supermaven-inc/supermaven-nvim",
+--     config = function()
+--       local api = require("supermaven-nvim.api")
+--
+--       -- Stop Supermaven only if it's running at startup
+--       if api.is_running() then
+--         api.stop()
+--         vim.notify("Supermaven Disabled 💤", vim.log.levels.WARN, { title = "Supermaven" })
+--       end
+--
+--       -- Keymap to toggle Supermaven
+--       vim.keymap.set({ "n", "i" }, "<C-\\>", function()
+--         if api.is_running() then
+--           api.stop()
+--           vim.notify("Supermaven Disabled 💤", vim.log.levels.WARN, { title = "Supermaven" })
+--         else
+--           api.start()
+--           api.use_free_version() -- ensure free mode when enabling
+--           vim.notify("Supermaven Enabled ⚡ (Free Mode)", vim.log.levels.INFO, { title = "Supermaven" })
+--         end
+--       end, { desc = "Toggle Supermaven" })
+--     end,
+--   },
+-- }
 
 
 -- return {
