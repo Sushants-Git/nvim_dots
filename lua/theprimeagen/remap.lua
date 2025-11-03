@@ -208,3 +208,6 @@ end, { desc = "Rotate Split Layout" })
 vim.keymap.set("n", "<leader>tn", ":tabnew %<CR>", { desc = "New Tab Same File" })
 vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", { desc = "Close Tab" })
 
+vim.keymap.set('n', '<leader>q', ':q<CR>', { noremap = true, silent = true })
+
+

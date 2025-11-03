@@ -45,6 +45,8 @@ return {
             builtin.grep_string({ search = word })
         end)
 
+        vim.keymap.set('n', '<leader>pr', require('telescope.builtin').resume, { desc = 'Resume last Telescope' })
+
         vim.keymap.set("n", "<leader>ps", function()
             local builtin = require("telescope.builtin")
 
