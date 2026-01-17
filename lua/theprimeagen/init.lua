@@ -1,6 +1,11 @@
 require("theprimeagen.set")
 require("theprimeagen.remap")
 require("theprimeagen.lazy_init")
+require("theprimeagen.envswitch").setup()
+
+-- Load saved theme on startup
+local colors = require("theprimeagen.lazy.colors")
+colors.ColorMyPencils()
 
 -- DO.not
 -- DO NOT INCLUDE THIS
@@ -46,16 +51,16 @@ autocmd({ "BufWritePre" }, {
     command = [[%s/\s\+$//e]],
 })
 
-autocmd('BufEnter', {
-    group = ThePrimeagenGroup,
-    callback = function()
-        if vim.bo.filetype == "zig" then
-            vim.cmd.colorscheme("tokyonight-night")
-        else
-            vim.cmd.colorscheme("rose-pine-moon")
-        end
-    end
-})
+-- autocmd('BufEnter', {
+--     group = ThePrimeagenGroup,
+--     callback = function()
+--         if vim.bo.filetype == "zig" then
+--             vim.cmd.colorscheme("tokyonight-night")
+--         else
+--             vim.cmd.colorscheme("rose-pine-moon")
+--         end
+--     end
+-- })
 
 
 autocmd('LspAttach', {
