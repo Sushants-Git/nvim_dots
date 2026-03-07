@@ -9,6 +9,11 @@ local themes = {
     "github_dark_dimmed",
     "catppuccin-latte", -- light variant
     "catppuccin-mocha", -- dark variant
+
+    "kanagawa",
+    "kanagawa-wave",
+    "kanagawa-dragon",
+    "kanagawa-lotus",
 }
 
 -- Path to store theme preference
@@ -248,6 +253,46 @@ return {
                     --     sidebars = false,
                     -- },
                 },
+            })
+        end,
+    },
+    {
+        "rebelot/kanagawa.nvim",
+        name = "kanagawa",
+        lazy = false,
+        priority = 1000,
+        config = function()
+            require("kanagawa").setup({
+                compile = false,
+                undercurl = true,
+                commentStyle = { italic = false },
+                keywordStyle = { italic = false },
+                statementStyle = { bold = true },
+                transparent = true, -- matches your other themes
+                dimInactive = false,
+                terminalColors = true,
+
+                colors = {
+                    theme = {
+                        all = {
+                            ui = {
+                                bg_gutter = "none", -- cleaner look
+                            },
+                        },
+                    },
+                },
+
+                overrides = function(colors)
+                    local theme = colors.theme
+                    return {
+                        NormalFloat = { bg = "none" },
+                        FloatBorder = { bg = "none" },
+                        TelescopeBorder = { bg = "none" },
+                        Pmenu = { bg = theme.ui.bg_p1 },
+                    }
+                end,
+
+                theme = "wave", -- default variant
             })
         end,
     },

@@ -50,17 +50,43 @@ return {
         vim.keymap.set("n", "<leader>ps", function()
             local builtin = require("telescope.builtin")
 
-            -- Prompt user for input and trim it before search
-            local input = vim.fn.input("Grep: ")
-            input = vim.trim(input)
+            vim.ui.input(
+                {
+                    prompt = "Grep: ",
+                    default = "",
+                },
+                function(input)
+                    if not input then
+                        return
+                    end
 
-            if input ~= "" then
-                builtin.live_grep({
-                    prompt_title = "Live Grep (regex supported)",
-                    default_text = input,
-                })
-            end
+                    input = vim.trim(input)
+
+                    if input ~= "" then
+                        builtin.live_grep({
+                            prompt_title = "Live Grep (regex supported)",
+                            default_text = input,
+                        })
+                    end
+                end
+            )
         end)
+
+
+        -- vim.keymap.set("n", "<leader>ps", function()
+        --     local builtin = require("telescope.builtin")
+        --
+        --     -- Prompt user for input and trim it before search
+        --     local input = vim.fn.input("Grep: ")
+        --     input = vim.trim(input)
+        --
+        --     if input ~= "" then
+        --         builtin.live_grep({
+        --             prompt_title = "Live Grep (regex supported)",
+        --             default_text = input,
+        --         })
+        --     end
+        -- end)
 
         -- -- 🧠 Live Grep with regex support (your main fix)
         -- vim.keymap.set("n", "<leader>ps", function()
