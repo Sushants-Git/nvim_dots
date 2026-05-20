@@ -14,6 +14,8 @@ local themes = {
     "kanagawa-wave",
     "kanagawa-dragon",
     "kanagawa-lotus",
+
+    "rusticated",
 }
 
 -- Path to store theme preference
@@ -48,6 +50,14 @@ end
 
 function ColorMyPencils(color)
     color = color or load_theme()
+
+    -- Reset state so previous theme's overrides don't leak into the new one
+    vim.opt.background = "dark"
+    vim.cmd("hi clear")
+    if vim.fn.exists("syntax_on") == 1 then
+        vim.cmd("syntax reset")
+    end
+
     vim.cmd.colorscheme(color)
 
     -- Set custom background for GitHub themes
@@ -55,6 +65,72 @@ function ColorMyPencils(color)
         set_nvimtree_background()
         vim.api.nvim_set_hl(0, "Normal", { bg = "#181818" })
         vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#181818" })
+    end
+
+    if color == "oxocarbon" then
+        local bg = "#161616"
+        local bg_alt = "#262626"
+        local fg = "#f2f4f8"
+        local accent = "#82cfff"
+
+        -- Cleaner core surfaces
+        vim.api.nvim_set_hl(0, "Normal", { bg = bg, fg = fg })
+        vim.api.nvim_set_hl(0, "NormalNC", { bg = bg, fg = fg })
+        vim.api.nvim_set_hl(0, "SignColumn", { bg = bg })
+        vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = bg, fg = bg })
+        vim.api.nvim_set_hl(0, "LineNr", { bg = bg, fg = "#525252" })
+        vim.api.nvim_set_hl(0, "CursorLine", { bg = "#1c1c1c" })
+        vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "#1c1c1c", fg = accent, bold = true })
+        vim.api.nvim_set_hl(0, "VertSplit", { bg = bg, fg = "#262626" })
+        vim.api.nvim_set_hl(0, "WinSeparator", { bg = bg, fg = "#262626" })
+        vim.api.nvim_set_hl(0, "StatusLine", { bg = bg_alt, fg = fg })
+        vim.api.nvim_set_hl(0, "StatusLineNC", { bg = bg, fg = "#6f6f6f" })
+        vim.api.nvim_set_hl(0, "Visual", { bg = "#393939" })
+
+        -- Floats / popups
+        vim.api.nvim_set_hl(0, "NormalFloat", { bg = bg, fg = fg })
+        vim.api.nvim_set_hl(0, "FloatBorder", { bg = bg, fg = "#393939" })
+        vim.api.nvim_set_hl(0, "Pmenu", { bg = bg_alt, fg = fg })
+        vim.api.nvim_set_hl(0, "PmenuSel", { bg = "#393939", fg = accent, bold = true })
+        vim.api.nvim_set_hl(0, "PmenuSbar", { bg = bg_alt })
+        vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "#525252" })
+
+        -- Telescope
+        vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = bg, fg = fg })
+        vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = bg, fg = "#393939" })
+        vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = bg_alt })
+        vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = bg_alt, fg = bg_alt })
+        vim.api.nvim_set_hl(0, "TelescopePromptTitle", { bg = accent, fg = bg, bold = true })
+        vim.api.nvim_set_hl(0, "TelescopePreviewTitle", { bg = "#42be65", fg = bg, bold = true })
+        vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { bg = bg, fg = bg })
+        vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = "#393939", fg = fg, bold = true })
+
+        -- NvimTree
+        vim.api.nvim_set_hl(0, "NvimTreeNormal", { bg = bg, fg = fg })
+        vim.api.nvim_set_hl(0, "NvimTreeNormalNC", { bg = bg, fg = fg })
+        vim.api.nvim_set_hl(0, "NvimTreeNormalFloat", { bg = bg })
+        vim.api.nvim_set_hl(0, "NvimTreeFloatBorder", { bg = bg, fg = "#393939" })
+        vim.api.nvim_set_hl(0, "NvimTreeEndOfBuffer", { bg = bg, fg = bg })
+        vim.api.nvim_set_hl(0, "NvimTreeSignColumn", { bg = bg })
+        vim.api.nvim_set_hl(0, "NvimTreeStatusLine", { bg = bg })
+        vim.api.nvim_set_hl(0, "NvimTreeStatusLineNC", { bg = bg })
+        vim.api.nvim_set_hl(0, "NvimTreeVertSplit", { bg = bg, fg = "#262626" })
+        vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { bg = bg, fg = "#262626" })
+        vim.api.nvim_set_hl(0, "NvimTreeRootFolder", { fg = accent, bold = true })
+        vim.api.nvim_set_hl(0, "NvimTreeFolderIcon", { fg = accent })
+        vim.api.nvim_set_hl(0, "NvimTreeOpenedFolderName", { fg = fg, bold = true })
+        vim.api.nvim_set_hl(0, "NvimTreeIndentMarker", { fg = "#393939" })
+
+        -- Diagnostics readability
+        vim.api.nvim_set_hl(0, "DiagnosticVirtualTextError", { bg = "none", fg = "#ee5396" })
+        vim.api.nvim_set_hl(0, "DiagnosticVirtualTextWarn", { bg = "none", fg = "#ff7eb6" })
+        vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo", { bg = "none", fg = "#82cfff" })
+        vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { bg = "none", fg = "#3ddbd9" })
+
+        -- Gitsigns
+        vim.api.nvim_set_hl(0, "GitSignsAdd", { bg = bg, fg = "#42be65" })
+        vim.api.nvim_set_hl(0, "GitSignsChange", { bg = bg, fg = "#82cfff" })
+        vim.api.nvim_set_hl(0, "GitSignsDelete", { bg = bg, fg = "#ee5396" })
     end
 end
 
@@ -77,20 +153,105 @@ function set_nvimtree_background()
     vim.api.nvim_set_hl(0, "NvimTreeVertSplit", { bg = bg })
 end
 
--- Theme switcher function
+-- Theme switcher function with live preview (arrow-key navigation)
 function SwitchTheme()
-    vim.ui.select(themes, {
-        prompt = 'Select a theme:',
-        format_item = function(item)
-            return item
-        end,
-    }, function(choice)
-        if choice then
-            save_theme(choice)
-            ColorMyPencils(choice)
-            print("Switched to: " .. choice)
+    local original = vim.g.colors_name or load_theme()
+
+    local buf = vim.api.nvim_create_buf(false, true)
+    local width = 40
+    local height = #themes
+    local ui = vim.api.nvim_list_uis()[1] or { width = vim.o.columns, height = vim.o.lines }
+    local row = math.floor((ui.height - height) / 2 - 1)
+    local col = math.floor((ui.width - width) / 2)
+
+    local lines = {}
+    for _, t in ipairs(themes) do table.insert(lines, "  " .. t) end
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+    vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+
+    local win = vim.api.nvim_open_win(buf, true, {
+        relative = 'editor',
+        width = width,
+        height = height,
+        row = row,
+        col = col,
+        style = 'minimal',
+        border = 'rounded',
+        title = ' Select a theme ',
+        title_pos = 'center',
+    })
+
+    vim.api.nvim_win_set_option(win, 'cursorline', true)
+
+    -- find current theme index
+    local start_idx = 1
+    for i, t in ipairs(themes) do
+        if t == original then start_idx = i break end
+    end
+    vim.api.nvim_win_set_cursor(win, { start_idx, 0 })
+
+    local confirmed = false
+
+    local apply_preview = function()
+        local line = vim.api.nvim_win_get_cursor(win)[1]
+        local theme = themes[line]
+        if theme then pcall(ColorMyPencils, theme) end
+    end
+
+    -- preview the initial selection
+    apply_preview()
+
+    local group = vim.api.nvim_create_augroup('ThemePreview', { clear = true })
+    vim.api.nvim_create_autocmd('CursorMoved', {
+        group = group,
+        buffer = buf,
+        callback = apply_preview,
+    })
+
+    local close = function()
+        vim.api.nvim_clear_autocmds({ group = group })
+        if vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_win_close(win, true)
         end
-    end)
+        if not confirmed then
+            pcall(ColorMyPencils, original)
+        end
+    end
+
+    local confirm = function()
+        local line = vim.api.nvim_win_get_cursor(win)[1]
+        local theme = themes[line]
+        if theme then
+            confirmed = true
+            save_theme(theme)
+            ColorMyPencils(theme)
+            print("Switched to: " .. theme)
+        end
+        if vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_win_close(win, true)
+        end
+        vim.api.nvim_clear_autocmds({ group = group })
+    end
+
+    local opts = { buffer = buf, nowait = true, silent = true }
+    vim.keymap.set('n', '<CR>', confirm, opts)
+    vim.keymap.set('n', '<Esc>', close, opts)
+    vim.keymap.set('n', 'q', close, opts)
+    vim.keymap.set('n', '<C-c>', close, opts)
+
+    -- disable j/k/h/l so they don't move (user requested arrow-only)
+    vim.keymap.set('n', 'j', '<Nop>', opts)
+    vim.keymap.set('n', 'k', '<Nop>', opts)
+    vim.keymap.set('n', 'h', '<Nop>', opts)
+    vim.keymap.set('n', 'l', '<Nop>', opts)
+
+    vim.api.nvim_create_autocmd('BufLeave', {
+        group = group,
+        buffer = buf,
+        once = true,
+        callback = close,
+    })
 end
 
 -- Create the command
@@ -210,18 +371,8 @@ return {
     {
         "nyoom-engineering/oxocarbon.nvim",
         name = "oxocarbon",
-        config = function()
-            -- require("oxocarbon").setup({
-            --     styles = {
-            --         comments = { italic = false },
-            --         keywords = { italic = false },
-            --         functions = { italic = false },
-            --         variables = { italic = false },
-            --         sidebars = "dark",
-            --         floats = "dark",
-            --     },
-            -- })
-        end
+        lazy = false,
+        priority = 1000,
     },
     {
         "rose-pine/neovim",
@@ -229,8 +380,29 @@ return {
         config = function()
             require('rose-pine').setup({
                 disable_background = true,
+                dim_inactive_windows = false,
                 styles = {
                     italic = false,
+                },
+                highlight_groups = {
+                    NormalNC = { bg = "NONE" },
+                    NormalFloat = { bg = "NONE" },
+                    FloatBorder = { bg = "NONE" },
+                    FloatTitle = { bg = "NONE" },
+                    NvimTreeNormal = { bg = "NONE" },
+                    NvimTreeNormalNC = { bg = "NONE" },
+                    NvimTreeEndOfBuffer = { bg = "NONE" },
+                    TelescopeNormal = { bg = "NONE" },
+                    TelescopeBorder = { bg = "NONE" },
+                    TelescopePromptNormal = { bg = "NONE" },
+                    TelescopePromptBorder = { bg = "NONE" },
+                    TelescopePromptTitle = { bg = "NONE" },
+                    TelescopeResultsNormal = { bg = "NONE" },
+                    TelescopeResultsBorder = { bg = "NONE" },
+                    TelescopeResultsTitle = { bg = "NONE" },
+                    TelescopePreviewNormal = { bg = "NONE" },
+                    TelescopePreviewBorder = { bg = "NONE" },
+                    TelescopePreviewTitle = { bg = "NONE" },
                 },
             })
         end
@@ -295,5 +467,11 @@ return {
                 theme = "wave", -- default variant
             })
         end,
+    },
+    {
+        "d00h/nvim-rusticated",
+        name = "rusticated",
+        lazy = false,
+        priority = 1000,
     },
 }

@@ -9,8 +9,22 @@ return {
     -- Optionally enable 24-bit color
     vim.opt.termguicolors = true
 
+    local function quicklook(node)
+      node = node or require("nvim-tree.api").tree.get_node_under_cursor()
+      if not node or not node.absolute_path or node.nodes then return end
+      vim.fn.jobstart({ "qlmanage", "-p", node.absolute_path }, { detach = true })
+    end
+
+    local function on_attach(bufnr)
+      local api = require("nvim-tree.api")
+      api.config.mappings.default_on_attach(bufnr)
+      vim.keymap.set("n", "<leader>ql", quicklook,
+        { desc = "Quick Look", buffer = bufnr, noremap = true, silent = true })
+    end
+
     -- Setup nvim-tree with options
     require('nvim-tree').setup({
+      on_attach = on_attach,
       sort = {
         sorter = "case_sensitive",
       },

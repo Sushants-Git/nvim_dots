@@ -120,10 +120,6 @@ vim.keymap.set("n", "<leader>cll", function()
     vim.fn.chansend(job_id, {"clear\r\n"})
 end)
 
-vim.keymap.set("n", "<leader>bb", function()
-    vim.fn.chansend(job_id, {"bun start\r\n"})
-end)
-
 vim.keymap.set("n", "<leader>br", function()
     vim.fn.chansend(job_id, {"bun run dev\r\n"})
 end)
@@ -139,6 +135,50 @@ vim.keymap.set("n", "<leader>tw", function()
     vim.o.winbar = ""
   end
 end, { desc = "Toggle winbar with navic" })
+
+-- Claude Code toggle (right-side vertical split)
+local claude_buf = nil
+local claude_win = nil
+local codex_buf = nil
+local codex_win = nil
+
+vim.keymap.set("n", "<leader>cc", function()
+  if claude_win and vim.api.nvim_win_is_valid(claude_win) then
+    vim.api.nvim_win_hide(claude_win)
+    claude_win = nil
+  elseif claude_buf and vim.api.nvim_buf_is_valid(claude_buf) then
+    vim.cmd("botright vsplit")
+    claude_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(claude_win, claude_buf)
+    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
+    vim.cmd("startinsert")
+  else
+    vim.cmd("botright vsplit")
+    vim.cmd("term claude")
+    claude_win = vim.api.nvim_get_current_win()
+    claude_buf = vim.api.nvim_get_current_buf()
+    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
+  end
+end, { noremap = true, silent = true, desc = "Toggle Claude Code panel" })
+
+vim.keymap.set("n", "<leader>cx", function()
+  if codex_win and vim.api.nvim_win_is_valid(codex_win) then
+    vim.api.nvim_win_hide(codex_win)
+    codex_win = nil
+  elseif codex_buf and vim.api.nvim_buf_is_valid(codex_buf) then
+    vim.cmd("botright vsplit")
+    codex_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(codex_win, codex_buf)
+    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
+    vim.cmd("startinsert")
+  else
+    vim.cmd("botright vsplit")
+    vim.cmd("term codex")
+    codex_win = vim.api.nvim_get_current_win()
+    codex_buf = vim.api.nvim_get_current_buf()
+    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
+  end
+end, { noremap = true, silent = true, desc = "Toggle Codex panel" })
 
 local opts = { noremap = true, silent = true }
 
@@ -210,4 +250,94 @@ vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", { desc = "Close Tab" })
 
 vim.keymap.set('n', '<leader>q', ':q<CR>', { noremap = true, silent = true })
 
+-- Copy current line / selection with file path and line range (for Claude Code)
+local function copy_for_claude(visual)
+    local start_line, end_line
+    if visual then
+        start_line = vim.fn.line("v")
+        end_line = vim.fn.line(".")
+        if start_line > end_line then
+            start_line, end_line = end_line, start_line
+        end
+    else
+        start_line = vim.fn.line(".")
+        end_line = start_line
+    end
+
+    local file = vim.fn.expand("%:p")
+    local cwd = vim.fn.getcwd()
+    local rel = file
+    if file:sub(1, #cwd) == cwd then
+        rel = file:sub(#cwd + 2)
+    end
+
+    local ref
+    if start_line == end_line then
+        ref = "@" .. rel .. "#L" .. start_line
+    else
+        ref = "@" .. rel .. "#L" .. start_line .. "-L" .. end_line
+    end
+    local payload = ref
+
+    vim.fn.setreg("+", payload)
+    vim.fn.setreg('"', payload)
+
+    local origin_win = vim.api.nvim_get_current_win()
+
+    -- Ensure Claude Code panel is open
+    if not (claude_win and vim.api.nvim_win_is_valid(claude_win)) then
+        if claude_buf and vim.api.nvim_buf_is_valid(claude_buf) then
+            vim.cmd("botright vsplit")
+            claude_win = vim.api.nvim_get_current_win()
+            vim.api.nvim_win_set_buf(claude_win, claude_buf)
+            vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
+        else
+            vim.cmd("botright vsplit")
+            vim.cmd("term claude")
+            claude_win = vim.api.nvim_get_current_win()
+            claude_buf = vim.api.nvim_get_current_buf()
+            vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
+        end
+    end
+
+    -- Send payload into the claude terminal using bracketed paste
+    local chan = vim.bo[claude_buf].channel
+    if chan and chan > 0 then
+        local bracketed = "\27[200~" .. payload .. "\27[201~"
+        vim.defer_fn(function()
+            vim.api.nvim_chan_send(chan, bracketed)
+        end, 50)
+    end
+
+    -- Return focus to the original window
+    if vim.api.nvim_win_is_valid(origin_win) then
+        vim.api.nvim_set_current_win(origin_win)
+    end
+
+    vim.notify("Sent " .. ref .. " to Claude Code")
+end
+
+vim.keymap.set("n", "<leader>;;", function() copy_for_claude(false) end,
+    { desc = "Copy current line + file:line for Claude Code" })
+vim.keymap.set("x", "<leader>;;", function() copy_for_claude(true) end,
+    { desc = "Copy selection + file:lines for Claude Code" })
+
+-- Copy current line as GitHub permalink
+vim.keymap.set("n", "<leader>gl", function()
+    local file = vim.fn.expand("%:p")
+    local line = vim.fn.line(".")
+
+    local git_root = vim.fn.system("git -C " .. vim.fn.shellescape(vim.fn.fnamemodify(file, ":h")) .. " rev-parse --show-toplevel"):gsub("\n", "")
+    local remote = vim.fn.system("git -C " .. vim.fn.shellescape(git_root) .. " remote get-url origin"):gsub("\n", "")
+    local commit = vim.fn.system("git -C " .. vim.fn.shellescape(git_root) .. " rev-parse HEAD"):gsub("\n", "")
+    local rel_path = file:sub(#git_root + 2)
+
+    -- Normalize remote URL to https
+    remote = remote:gsub("git@github%.com:", "https://github.com/")
+    remote = remote:gsub("%.git$", "")
+
+    local url = remote .. "/blob/" .. commit .. "/" .. rel_path .. "#L" .. line
+    vim.fn.setreg("+", url)
+    vim.notify("Copied: " .. url)
+end, { desc = "Copy line as GitHub link" })
 
