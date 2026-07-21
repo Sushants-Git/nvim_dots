@@ -137,48 +137,6 @@ vim.keymap.set("n", "<leader>tw", function()
 end, { desc = "Toggle winbar with navic" })
 
 -- Claude Code toggle (right-side vertical split)
-local claude_buf = nil
-local claude_win = nil
-local codex_buf = nil
-local codex_win = nil
-
-vim.keymap.set("n", "<leader>cc", function()
-  if claude_win and vim.api.nvim_win_is_valid(claude_win) then
-    vim.api.nvim_win_hide(claude_win)
-    claude_win = nil
-  elseif claude_buf and vim.api.nvim_buf_is_valid(claude_buf) then
-    vim.cmd("botright vsplit")
-    claude_win = vim.api.nvim_get_current_win()
-    vim.api.nvim_win_set_buf(claude_win, claude_buf)
-    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
-    vim.cmd("startinsert")
-  else
-    vim.cmd("botright vsplit")
-    vim.cmd("term claude")
-    claude_win = vim.api.nvim_get_current_win()
-    claude_buf = vim.api.nvim_get_current_buf()
-    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
-  end
-end, { noremap = true, silent = true, desc = "Toggle Claude Code panel" })
-
-vim.keymap.set("n", "<leader>cx", function()
-  if codex_win and vim.api.nvim_win_is_valid(codex_win) then
-    vim.api.nvim_win_hide(codex_win)
-    codex_win = nil
-  elseif codex_buf and vim.api.nvim_buf_is_valid(codex_buf) then
-    vim.cmd("botright vsplit")
-    codex_win = vim.api.nvim_get_current_win()
-    vim.api.nvim_win_set_buf(codex_win, codex_buf)
-    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
-    vim.cmd("startinsert")
-  else
-    vim.cmd("botright vsplit")
-    vim.cmd("term codex")
-    codex_win = vim.api.nvim_get_current_win()
-    codex_buf = vim.api.nvim_get_current_buf()
-    vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
-  end
-end, { noremap = true, silent = true, desc = "Toggle Codex panel" })
 
 local opts = { noremap = true, silent = true }
 
@@ -244,11 +202,29 @@ vim.keymap.set("n", "<leader>wr", function()
   end
 end, { desc = "Rotate Split Layout" })
 
--- New tab with same buffer
-vim.keymap.set("n", "<leader>tn", ":tabnew %<CR>", { desc = "New Tab Same File" })
+-- New tab with same buffer, same cursor position
+vim.keymap.set("n", "<leader>tn", ":tab split<CR>", { desc = "New Tab Same Position" })
 vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", { desc = "Close Tab" })
 
+-- Zoom toggle: full-screen current split, press again to restore
+local _zoom_state = {}
+vim.keymap.set("n", "<leader>wz", function()
+  local tab = vim.api.nvim_get_current_tabpage()
+  if _zoom_state[tab] then
+    vim.cmd("wincmd =")
+    _zoom_state[tab] = false
+  else
+    vim.cmd("wincmd |")
+    vim.cmd("wincmd _")
+    _zoom_state[tab] = true
+  end
+end, { desc = "Toggle Zoom Split" })
+
 vim.keymap.set('n', '<leader>q', ':q<CR>', { noremap = true, silent = true })
+
+vim.keymap.set("n", "<leader>tb", function()
+    vim.o.showtabline = vim.o.showtabline == 0 and 2 or 0
+end, { desc = "Toggle tabline" })
 
 -- Copy current line / selection with file path and line range (for Claude Code)
 local function copy_for_claude(visual)
@@ -277,50 +253,16 @@ local function copy_for_claude(visual)
     else
         ref = "@" .. rel .. "#L" .. start_line .. "-L" .. end_line
     end
-    local payload = ref
 
-    vim.fn.setreg("+", payload)
-    vim.fn.setreg('"', payload)
-
-    local origin_win = vim.api.nvim_get_current_win()
-
-    -- Ensure Claude Code panel is open
-    if not (claude_win and vim.api.nvim_win_is_valid(claude_win)) then
-        if claude_buf and vim.api.nvim_buf_is_valid(claude_buf) then
-            vim.cmd("botright vsplit")
-            claude_win = vim.api.nvim_get_current_win()
-            vim.api.nvim_win_set_buf(claude_win, claude_buf)
-            vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
-        else
-            vim.cmd("botright vsplit")
-            vim.cmd("term claude")
-            claude_win = vim.api.nvim_get_current_win()
-            claude_buf = vim.api.nvim_get_current_buf()
-            vim.cmd("vertical resize " .. math.floor(vim.o.columns / 2))
-        end
-    end
-
-    -- Send payload into the claude terminal using bracketed paste
-    local chan = vim.bo[claude_buf].channel
-    if chan and chan > 0 then
-        local bracketed = "\27[200~" .. payload .. "\27[201~"
-        vim.defer_fn(function()
-            vim.api.nvim_chan_send(chan, bracketed)
-        end, 50)
-    end
-
-    -- Return focus to the original window
-    if vim.api.nvim_win_is_valid(origin_win) then
-        vim.api.nvim_set_current_win(origin_win)
-    end
-
-    vim.notify("Sent " .. ref .. " to Claude Code")
+    vim.fn.setreg("+", ref)
+    vim.fn.setreg('"', ref)
+    vim.notify("Copied " .. ref)
 end
 
 vim.keymap.set("n", "<leader>;;", function() copy_for_claude(false) end,
-    { desc = "Copy current line + file:line for Claude Code" })
+    { desc = "Copy file:line ref" })
 vim.keymap.set("x", "<leader>;;", function() copy_for_claude(true) end,
-    { desc = "Copy selection + file:lines for Claude Code" })
+    { desc = "Copy file:lines ref" })
 
 -- Copy current line as GitHub permalink
 vim.keymap.set("n", "<leader>gl", function()

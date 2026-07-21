@@ -1,5 +1,8 @@
 -- Available themes list
 local themes = {
+    "default",
+    "onehalfdark", -- mitchellh's colorscheme (colors/onehalfdark.vim)
+    "molokai",     -- mitchellh's older colorscheme (colors/molokai.vim)
     "catppuccin",
     "rose-pine-moon",
     "tokyonight-storm",
@@ -16,6 +19,25 @@ local themes = {
     "kanagawa-lotus",
 
     "rusticated",
+
+    "solarized-osaka",
+    "solarized-osaka-storm",
+    "solarized-osaka-night",
+    "solarized-osaka-day",
+
+    -- ayu (variant selected via g:ayucolor below)
+    "ayu-dark",
+    "ayu-mirage",
+    "ayu-light",
+
+    -- zenbones collection (background=dark variants)
+    "zenbones",
+    "zenwritten",
+    "neobones",
+    "zenburned",
+    "kanagawabones",
+    "duckbones",
+    "rosebones", -- dark (background=dark forced by ColorMyPencils)
 }
 
 -- Path to store theme preference
@@ -58,7 +80,22 @@ function ColorMyPencils(color)
         vim.cmd("syntax reset")
     end
 
+    -- ayu ships one colorscheme ("ayu") with variants chosen via g:ayucolor
+    if color == "ayu-dark" or color == "ayu-mirage" or color == "ayu-light" then
+        local variant = color:gsub("^ayu%-", "")
+        if variant == "light" then
+            vim.opt.background = "light"
+        end
+        vim.g.ayucolor = variant
+        color = "ayu"
+    end
+
     vim.cmd.colorscheme(color)
+
+    -- NOTE: We intentionally do NOT strip the theme background anymore.
+    -- Each theme keeps its own bg color; Ghostty's `background-opacity` +
+    -- `background-opacity-cells = true` makes those bg colors slightly
+    -- transparent (with blur) at the terminal level.
 
     -- Set custom background for GitHub themes
     if string.match(color, "github") then
@@ -276,7 +313,7 @@ return {
                 -- your configuration comes here
                 -- or leave it empty to use the default settings
                 style = "storm",        -- The theme comes in three styles, `storm`, `moon`, a darker variant `night` and `day`
-                transparent = true,     -- Enable this to disable setting the background color
+                transparent = false,    -- Keep the theme's own bg; Ghostty handles transparency
                 terminal_colors = true, -- Configure the colors used when opening a `:terminal` in Neovim
                 styles = {
                     -- Style to be applied to different syntax groups
@@ -328,7 +365,7 @@ return {
                 -- your configuration comes here
                 -- or leave it empty to use the default settings
                 style = "storm",        -- The theme comes in three styles, `storm`, `moon`, a darker variant `night` and `day`
-                transparent = true,     -- Enable this to disable setting the background color
+                transparent = false,    -- Keep the theme's own bg; Ghostty handles transparency
                 terminal_colors = true, -- Configure the colors used when opening a `:terminal` in Neovim
                 styles = {
                     -- Style to be applied to different syntax groups
@@ -379,30 +416,10 @@ return {
         name = "rose-pine",
         config = function()
             require('rose-pine').setup({
-                disable_background = true,
+                disable_background = false,
                 dim_inactive_windows = false,
                 styles = {
                     italic = false,
-                },
-                highlight_groups = {
-                    NormalNC = { bg = "NONE" },
-                    NormalFloat = { bg = "NONE" },
-                    FloatBorder = { bg = "NONE" },
-                    FloatTitle = { bg = "NONE" },
-                    NvimTreeNormal = { bg = "NONE" },
-                    NvimTreeNormalNC = { bg = "NONE" },
-                    NvimTreeEndOfBuffer = { bg = "NONE" },
-                    TelescopeNormal = { bg = "NONE" },
-                    TelescopeBorder = { bg = "NONE" },
-                    TelescopePromptNormal = { bg = "NONE" },
-                    TelescopePromptBorder = { bg = "NONE" },
-                    TelescopePromptTitle = { bg = "NONE" },
-                    TelescopeResultsNormal = { bg = "NONE" },
-                    TelescopeResultsBorder = { bg = "NONE" },
-                    TelescopeResultsTitle = { bg = "NONE" },
-                    TelescopePreviewNormal = { bg = "NONE" },
-                    TelescopePreviewBorder = { bg = "NONE" },
-                    TelescopePreviewTitle = { bg = "NONE" },
                 },
             })
         end
@@ -440,7 +457,7 @@ return {
                 commentStyle = { italic = false },
                 keywordStyle = { italic = false },
                 statementStyle = { bold = true },
-                transparent = true, -- matches your other themes
+                transparent = false, -- keep theme bg; Ghostty handles transparency
                 dimInactive = false,
                 terminalColors = true,
 
@@ -457,9 +474,6 @@ return {
                 overrides = function(colors)
                     local theme = colors.theme
                     return {
-                        NormalFloat = { bg = "none" },
-                        FloatBorder = { bg = "none" },
-                        TelescopeBorder = { bg = "none" },
                         Pmenu = { bg = theme.ui.bg_p1 },
                     }
                 end,
@@ -471,6 +485,26 @@ return {
     {
         "d00h/nvim-rusticated",
         name = "rusticated",
+        lazy = false,
+        priority = 1000,
+    },
+    {
+        "craftzdog/solarized-osaka.nvim",
+        lazy = false,
+        priority = 1000,
+        opts = {
+            transparent = false,
+        },
+    },
+    {
+        "zenbones-theme/zenbones.nvim",
+        dependencies = "rktjmp/lush.nvim",
+        lazy = false,
+        priority = 1000,
+    },
+    {
+        "ayu-theme/ayu-vim",
+        name = "ayu",
         lazy = false,
         priority = 1000,
     },
