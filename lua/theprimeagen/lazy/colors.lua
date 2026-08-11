@@ -20,6 +20,8 @@ local themes = {
 
     "rusticated",
 
+    "bearded",
+
     "solarized-osaka",
     "solarized-osaka-storm",
     "solarized-osaka-night",
@@ -507,5 +509,18 @@ return {
         name = "ayu",
         lazy = false,
         priority = 1000,
+    },
+    {
+        "Ferouk/bearded-nvim",
+        name = "bearded",
+        lazy = false,
+        priority = 1000,
+        build = function()
+            local doc = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy", "bearded", "doc")
+            pcall(vim.cmd, "helptags " .. doc)
+        end,
+        config = function()
+            require("bearded").setup({ flavor = "arc" })
+        end,
     },
 }
