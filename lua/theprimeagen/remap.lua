@@ -283,3 +283,24 @@ vim.keymap.set("n", "<leader>gl", function()
     vim.notify("Copied: " .. url)
 end, { desc = "Copy line as GitHub link" })
 
+
+-- ─────────────────────────────
+-- FOLDING
+-- ─────────────────────────────
+-- Built-ins worth knowing: za toggle, zo open, zc close, zj/zk jump folds,
+-- zr/zm open/close one level, zR open all, zM close all.
+
+-- One key that flips between "everything folded" and "everything open"
+-- (za, not zz -- <leader>zz and <leader>zZ belong to zen-mode)
+local _all_folded = false
+vim.keymap.set("n", "<leader>za", function()
+    vim.cmd("normal! " .. (_all_folded and "zR" or "zM"))
+    _all_folded = not _all_folded
+end, { desc = "Toggle all folds" })
+
+-- Collapse everything except the function the cursor is in
+vim.keymap.set("n", "<leader>zc", "zMzv", { desc = "Fold all, keep cursor visible" })
+
+-- Fold just the top level (types/functions collapsed, imports etc. left alone)
+vim.keymap.set("n", "<leader>z1", "<cmd>set foldlevel=1<CR>", { desc = "Fold to level 1" })
+vim.keymap.set("n", "<leader>z2", "<cmd>set foldlevel=2<CR>", { desc = "Fold to level 2" })

@@ -9,7 +9,19 @@ local themes = {
     "gruvbox",
     "oxocarbon",
     "brightburn",
+    -- github (projekt0n/github-nvim-theme)
+    "github_dark",
+    "github_dark_default",
     "github_dark_dimmed",
+    "github_dark_high_contrast",
+    "github_dark_colorblind",
+    "github_dark_tritanopia",
+    "github_light",
+    "github_light_default",
+    "github_light_high_contrast",
+    "github_light_colorblind",
+    "github_light_tritanopia",
+
     "catppuccin-latte", -- light variant
     "catppuccin-mocha", -- dark variant
 
@@ -92,6 +104,11 @@ function ColorMyPencils(color)
         color = "ayu"
     end
 
+    -- light colorschemes need background=light before loading
+    if color:match("^github_light") then
+        vim.opt.background = "light"
+    end
+
     vim.cmd.colorscheme(color)
 
     -- NOTE: We intentionally do NOT strip the theme background anymore.
@@ -99,11 +116,14 @@ function ColorMyPencils(color)
     -- `background-opacity-cells = true` makes those bg colors slightly
     -- transparent (with blur) at the terminal level.
 
-    -- Set custom background for GitHub themes
-    if string.match(color, "github") then
-        set_nvimtree_background()
-        vim.api.nvim_set_hl(0, "Normal", { bg = "#181818" })
-        vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#181818" })
+    -- GitHub dark themes: keep each variant's own background (github_dark_default
+    -- is #0d1117, matching the Ghostty/Rune "GitHub Dark Default" theme) and just
+    -- make floats and NvimTree follow it, instead of forcing one hardcoded bg.
+    if color:match("^github_dark") then
+        local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+        local bg = normal.bg and string.format("#%06x", normal.bg) or "#0d1117"
+        vim.api.nvim_set_hl(0, "NormalFloat", { bg = bg })
+        set_nvimtree_background(bg)
     end
 
     if color == "oxocarbon" then
@@ -173,8 +193,8 @@ function ColorMyPencils(color)
     end
 end
 
-function set_nvimtree_background()
-    local bg = "#181818"
+function set_nvimtree_background(bg)
+    bg = bg or "#0d1117"
 
     -- Main tree background
     vim.api.nvim_set_hl(0, "NvimTreeNormal", { bg = bg })

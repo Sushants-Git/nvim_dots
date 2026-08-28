@@ -2,6 +2,7 @@ require("theprimeagen.set")
 require("theprimeagen.remap")
 require("theprimeagen.lazy_init")
 require("theprimeagen.envswitch").setup()
+require("theprimeagen.diffmark").setup()
 
 -- Load saved theme on startup
 local colors = require("theprimeagen.lazy.colors")
@@ -74,6 +75,12 @@ autocmd('LspAttach', {
         vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
         vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
         vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
+        -- call hierarchy: who calls this / what this calls. ts_ls supports both.
+        vim.keymap.set("n", "gci", function() vim.lsp.buf.incoming_calls() end, opts)
+        vim.keymap.set("n", "gco", function() vim.lsp.buf.outgoing_calls() end, opts)
+        -- declaration is distinct from definition in C/C++, Go, etc.
+        -- (tsserver does not implement it, so this is a no-op in TS files)
+        vim.keymap.set("n", "gD", function() vim.lsp.buf.declaration() end, opts)
         vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
         vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
         vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
