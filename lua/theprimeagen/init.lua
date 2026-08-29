@@ -2,7 +2,6 @@ require("theprimeagen.set")
 require("theprimeagen.remap")
 require("theprimeagen.lazy_init")
 require("theprimeagen.envswitch").setup()
-require("theprimeagen.diffmark").setup()
 
 -- Load saved theme on startup
 local colors = require("theprimeagen.lazy.colors")

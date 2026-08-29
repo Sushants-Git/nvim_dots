@@ -43,6 +43,7 @@
   "oxocarbon": { "branch": "main", "commit": "7cc379b96fcbb4e75c5152906e0fccf81ce46590" },
   "plenary": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
+  "redline.nvim": { "branch": "main", "commit": "bcb69d502e891a686017082de750c356c8e4a0f4" },
   "rose-pine": { "branch": "main", "commit": "ff483051a47e27d84bdef47703538df1ed9f4a47" },
   "rusticated": { "branch": "master", "commit": "93e35f67b11857736c9af8b353867daf7e4a3abc" },
   "snacks.nvim": { "branch": "main", "commit": "882c996cf28183f4d63640de0b4c02ec886d01f2" },
